@@ -1,18 +1,7 @@
-//
-//  ContentView.swift
-//  audioplayer-example
-//
-//  Created by Miro Virta on 21.10.2023.
-//
 
-import SwiftUI
-
-//
 //  ContentView.swift
 //  audioplayertest
-//
-//  Created by Miro Virta on 21.10.2023.
-//
+
 
 import SwiftUI
 import AVFoundation

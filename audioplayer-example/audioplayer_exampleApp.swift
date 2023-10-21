@@ -2,8 +2,6 @@
 //  audioplayer_exampleApp.swift
 //  audioplayer-example
 //
-//  Created by Miro Virta on 21.10.2023.
-//
 
 import SwiftUI
 
