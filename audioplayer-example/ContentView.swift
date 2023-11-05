@@ -1,4 +1,3 @@
-
 //  ContentView.swift
 //  audioplayertest
 
@@ -16,80 +15,65 @@ class PlayerConductor: ObservableObject, HasAudioEngine {
     
     var player = AudioPlayer()
     
-    init(file: String) {
-        
-        guard let url = Bundle.main.resourceURL?.appendingPathComponent("Samples/\(file)") else { return }
-        do {
-            
-            audioFile = try AVAudioFile(forReading: url)
-            
-            try player.load(url: url, buffered: true)
-            
-            print("Channel count for AVAudioPlayerNode")
-            print(player.playerNode.outputFormat(forBus: 0).channelCount)
-            
-        } catch {
-            Log("Could not load: \(file)")
-        }
-        
-        engine.output = mixer
-        
-        mixer.addInput(player)
-        mixer.addInput(player)
+    init() {
+        engine.output = player
+        loadFile(filename: "808_Kick_High.wav")
     }
     
     func loadFile(filename: String) {
-        guard let url = Bundle.main.resourceURL?.appendingPathComponent("Samples/\(filename)"),
-              let buffer = try? AVAudioPCMBuffer(url: url)
-        else {
-            Log("failed to load sample", filename)
-            return
-        }
-        self.player.stop()
-        self.player.file = try? AVAudioFile(forReading: url)
-        self.player.buffer = buffer
-        print("Channel count for AVAudioPlayerNode")
-        print(player.playerNode.outputFormat(forBus: 0).channelCount)
+        player.stop()
+        try! player.load(url: (Bundle.main.resourceURL?.appendingPathComponent("Samples/\(filename)"))!, buffered: true)
     }
     
-    func play() {
+    func startPlayer() {
         player.play()
     }
     
-    func stop() {
+    func stopPlayer() {
         player.stop()
     }
 }
 
 struct ContentView: View {
-    @StateObject var conductor = PlayerConductor(file: "clap_mono.wav")
+    @Environment(\.scenePhase) var scenePhase
+    @StateObject var conductor = PlayerConductor()
     
     var body: some View {
         VStack {
             HStack {
-                Button(action: {conductor.play()}) {
+                Button(action: {conductor.startPlayer()}) {
                     Image(systemName: "play.fill")
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                Button(action: {conductor.stop()}) {
+                Button(action: {conductor.stopPlayer()}) {
                     Image(systemName: "stop.fill")
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
             }
-            Button(action: {conductor.loadFile(filename: "clap_stereo.wav")}) {
+            Button(action: {conductor.loadFile(filename: "808_Kick_High.wav")}) {
                 Text("Change file to stereo")
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+
+            
+            Button(action: {conductor.loadFile(filename: "mid_tom_B1.wav")}) {
+                Text("Change file to mono")
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
         }
         .padding()
-        .onAppear {
-            conductor.start()
-        }
-        .onDisappear {
-            conductor.stop()
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
+                conductor.start()
+                print("Start")
+            } else if scenePhase == .background {
+                conductor.stop()
+                print("Stop")
+            }
         }
     }
 }
